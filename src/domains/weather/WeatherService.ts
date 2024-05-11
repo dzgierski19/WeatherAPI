@@ -11,6 +11,11 @@ export interface IWeatherService {
     date: Date,
     city: string
   ): Promise<number>;
+  getAverageDailyWeatherForSpecificDateRange(
+    dateFrom: Date,
+    dateTo: Date,
+    city: string
+  ): Promise<string>;
 }
 
 export class WeatherService implements IWeatherService {
@@ -75,23 +80,52 @@ export class WeatherService implements IWeatherService {
     }
   }
 
+  async getAverageDailyWeatherForSpecificDateRange(
+    dateFrom: Date,
+    dateTo: Date,
+    city: string
+  ) {
+    // this.isDateFromFuture(dateFrom);
+    // this.isDateFromFuture(dateTo);
+    const getDateFromAsString = this.convertDate(dateFrom);
+    const getDateToAsString = this.convertDate(dateTo);
+    try {
+      const response = await axios.get(
+        `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${city}/${getDateFromAsString}/${getDateToAsString}?unitGroup=metric&key=${process.env.API_KEY}&contentType=json`
+      );
+      return response.data.days.map((element: any) => {
+        return [element.datetime, element.temp];
+      });
+    } catch (err) {
+      throw err;
+    }
+  }
+
   private convertDate(date: Date): string {
     return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
   }
 
   private isDateFromPast(date: Date) {
     const checkedDate = date.getTime();
-    const currentDate = Date.now();
-    if (checkedDate >= currentDate) {
-      throw new Error("Please type date from past");
+    const currentDateInMillisecondsFrom1970 = Date.now();
+    const actualDate = new Date();
+    if (
+      this.convertDate(date) === this.convertDate(actualDate) ||
+      checkedDate >= currentDateInMillisecondsFrom1970
+    ) {
+      throw new Error(`Please type date from past, ${date} is wrong`);
     }
   }
 
   private isDateFromFuture(date: Date) {
     const checkedDate = date.getTime();
-    const currentDate = Date.now();
-    if (checkedDate <= currentDate) {
-      throw new Error("Please type date from future");
+    const currentDateInMillisecondsFrom1970 = Date.now();
+    const actualDate = new Date();
+    if (
+      this.convertDate(date) === this.convertDate(actualDate) ||
+      checkedDate <= currentDateInMillisecondsFrom1970
+    ) {
+      throw new Error(`Please type date from future, ${date} is wrong`);
     }
   }
 
