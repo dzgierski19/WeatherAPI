@@ -1,6 +1,8 @@
 import { Router } from "express";
 import { weatherController } from "./../../IoC";
 
+require("express-async-errors");
+
 export const weatherRouter = Router();
 
 weatherRouter.get(
@@ -14,11 +16,16 @@ weatherRouter.get(
 );
 
 weatherRouter.get(
-  "/weather/historical/:city/:date",
+  "/weather/historical/:date/:city/",
   weatherController.getHistoricalWeatherForCity
 );
 
 weatherRouter.get(
-  "/weather/prediction/:city/:date",
+  "/weather/prediction/cities/:city",
+  weatherController.getWeatherPredictionForCityInRange
+);
+
+weatherRouter.get(
+  "/weather/prediction/:date/:city",
   weatherController.getWeatherPredictionForCity
 );
