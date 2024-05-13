@@ -22,7 +22,12 @@ weatherRouter.get(
 
 weatherRouter.get(
   "/weather/prediction/cities/:city",
-  weatherController.getWeatherPredictionForCityInRange
+  weatherController.getWeatherPredictionForCityInDateRange
+);
+
+weatherRouter.get(
+  "/weather/prediction/location/:lat/:lon",
+  weatherController.getWeatherPredictionForLocationInDateRange
 );
 
 weatherRouter.get(
