@@ -6,7 +6,11 @@ export interface IWeatherController {
   getCurrentWeatherForLocation(req: Request, res: Response): Promise<void>;
   getHistoricalWeatherForCity(req: Request, res: Response): Promise<void>;
   getWeatherPredictionForCity(req: Request, res: Response): Promise<void>;
-  getWeatherPredictionForCityInRange(
+  getWeatherPredictionForCityInDateRange(
+    req: Request,
+    res: Response
+  ): Promise<void>;
+  getWeatherPredictionForLocationInDateRange(
     req: Request,
     res: Response
   ): Promise<void>;
@@ -50,7 +54,10 @@ export class WeatherController implements IWeatherController {
     res.status(200).json(weather);
   };
 
-  getWeatherPredictionForCityInRange = async (req: Request, res: Response) => {
+  getWeatherPredictionForCityInDateRange = async (
+    req: Request,
+    res: Response
+  ) => {
     const dateFrom = new Date(req.query.dateFrom as string);
     const dateTo = new Date(req.query.dateTo as string);
     const city = req.params.city;
@@ -59,6 +66,24 @@ export class WeatherController implements IWeatherController {
         dateFrom,
         dateTo,
         city
+      );
+    res.status(200).json(response);
+  };
+
+  getWeatherPredictionForLocationInDateRange = async (
+    req: Request,
+    res: Response
+  ) => {
+    const dateFrom = new Date(req.query.dateFrom as string);
+    const dateTo = new Date(req.query.dateTo as string);
+    const lat = +req.params.lat;
+    const lon = +req.params.lon;
+    const response =
+      await this.weatherService.getAverageDailyWeatherForSpecificDateRangFromLatLon(
+        dateFrom,
+        dateTo,
+        lat,
+        lon
       );
     res.status(200).json(response);
   };

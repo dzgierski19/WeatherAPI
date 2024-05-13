@@ -15,7 +15,13 @@ export interface IWeatherService {
     dateFrom: Date,
     dateTo: Date,
     city: string
-  ): Promise<string>;
+  ): Promise<[string, number][]>;
+  getAverageDailyWeatherForSpecificDateRangFromLatLon(
+    dateFrom: Date,
+    dateTo: Date,
+    lat: number,
+    lon: number
+  ): Promise<[string, number][]>;
 }
 
 export class WeatherService implements IWeatherService {
@@ -85,14 +91,39 @@ export class WeatherService implements IWeatherService {
     dateTo: Date,
     city: string
   ) {
-    // this.isDateFromFuture(dateFrom);
-    // this.isDateFromFuture(dateTo);
+    this.isDateFromFuture(dateFrom);
+    this.isDateFromFuture(dateTo);
     const getDateFromAsString = this.convertDate(dateFrom);
     const getDateToAsString = this.convertDate(dateTo);
     try {
-      const response = await axios.get(
+      const response = await axios(
         `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${city}/${getDateFromAsString}/${getDateToAsString}?unitGroup=metric&key=${process.env.API_KEY}&contentType=json`
       );
+      const res: [string, number][] = response.data.days.map((element: any) => {
+        return [element.datetime, element.temp];
+      });
+      return res;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async getAverageDailyWeatherForSpecificDateRangFromLatLon(
+    dateFrom: Date,
+    dateTo: Date,
+    lat: number,
+    lon: number
+  ) {
+    this.isDateFromFuture(dateFrom);
+    this.isDateFromFuture(dateTo);
+    const getDateFromAsString = this.convertDate(dateFrom);
+    const getDateToAsString = this.convertDate(dateTo);
+    try {
+      const response = await axios(
+        `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${lat}%2C%20
+        ${lon}/${getDateFromAsString}/${getDateToAsString}?unitGroup=metric&key=${process.env.API_KEY}&contentType=json`
+      );
+      console.log(response.data);
       return response.data.days.map((element: any) => {
         return [element.datetime, element.temp];
       });
