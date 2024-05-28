@@ -17,7 +17,6 @@ export class AxiosClient implements IAxiosClient {
   createAxiosInstance(): AxiosInstance {
     if (this.config) configSchema.parse(this.config);
     return axios.create({
-      adapter: "http",
       baseURL: this.config?.baseURL || process.env.EXTERNAL_API,
       params: {
         unitGroup: this.config?.unitGroup || UNITGROUP.METRIC,
