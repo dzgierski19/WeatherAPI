@@ -14,8 +14,8 @@ export const refinedNumber = toNumber
     "Please type number between -180 and 180"
   )
   .refine(
-    (element) => String(element).length <= 8,
-    "Please type element with less than 4 digits after float"
+    (element) => String(element).length <= 9,
+    "Please type lat/lon with max 9 characters"
   );
 
 // CURRENT WEATHER
