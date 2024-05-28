@@ -1,17 +1,36 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import { IWeatherService } from "./WeatherService";
+import { ParsedRequest } from "../interfaces/ApiTypes";
+import {
+  getCurrentWeatherForLocationRequest,
+  getCurrentWeatherForCityRequest,
+  getWeatherForCityInDateRangeRequest,
+  getWeatherForLocationInDateRangeRequest,
+} from "../../schemas/ValidateSchemas";
 
 export interface IWeatherController {
-  getCurrentWeatherForCity(req: Request, res: Response): Promise<void>;
-  getCurrentWeatherForLocation(req: Request, res: Response): Promise<void>;
-  getHistoricalWeatherForCity(req: Request, res: Response): Promise<void>;
-  getWeatherPredictionForCity(req: Request, res: Response): Promise<void>;
+  getCurrentWeatherForCity(
+    req: ParsedRequest<getCurrentWeatherForCityRequest>,
+    res: Response
+  ): Promise<void>;
+  getCurrentWeatherForLocation(
+    req: ParsedRequest<getCurrentWeatherForLocationRequest>,
+    res: Response
+  ): Promise<void>;
+  getHistoricalWeatherForCityInDateRange(
+    req: ParsedRequest<getWeatherForCityInDateRangeRequest>,
+    res: Response
+  ): Promise<void>;
+  getHistoricalWeatherForLocationInDateRange(
+    req: ParsedRequest<getWeatherForLocationInDateRangeRequest>,
+    res: Response
+  ): Promise<void>;
   getWeatherPredictionForCityInDateRange(
-    req: Request,
+    req: ParsedRequest<getWeatherForCityInDateRangeRequest>,
     res: Response
   ): Promise<void>;
   getWeatherPredictionForLocationInDateRange(
-    req: Request,
+    req: ParsedRequest<getWeatherForLocationInDateRangeRequest>,
     res: Response
   ): Promise<void>;
 }
@@ -19,16 +38,21 @@ export interface IWeatherController {
 export class WeatherController implements IWeatherController {
   constructor(private readonly weatherService: IWeatherService) {}
 
-  getCurrentWeatherForCity = async (req: Request, res: Response) => {
+  getCurrentWeatherForCity = async (
+    req: ParsedRequest<getCurrentWeatherForCityRequest>,
+    res: Response
+  ) => {
     const city = req.params.city;
-    console.log(this);
     const weather = await this.weatherService.getCurrentWeatherForCity(city);
     res.status(200).json(weather);
   };
 
-  getCurrentWeatherForLocation = async (req: Request, res: Response) => {
-    const lat = +req.params.lat;
-    const lon = +req.params.lon;
+  getCurrentWeatherForLocation = async (
+    req: ParsedRequest<getCurrentWeatherForLocationRequest>,
+    res: Response
+  ) => {
+    const lat = req.params.lat;
+    const lon = req.params.lon;
     const weather = await this.weatherService.getCurrentWeatherForLocation(
       lat,
       lon
@@ -36,33 +60,49 @@ export class WeatherController implements IWeatherController {
     res.status(200).json(weather);
   };
 
-  getHistoricalWeatherForCity = async (req: Request, res: Response) => {
-    const date = new Date(req.params.date);
+  getHistoricalWeatherForCityInDateRange = async (
+    req: ParsedRequest<getWeatherForCityInDateRangeRequest>,
+    res: Response
+  ) => {
+    const dateFrom = req.query.dateFrom;
+    const dateTo = req.query.dateTo;
     const city = req.params.city;
-    const weather = await this.weatherService.getAverageDailyWeatherForPastDate(
-      date,
-      city
-    );
+    const weather =
+      await this.weatherService.getAverageHistoricalDailyWeatherInSpecificDateRangeForCity(
+        dateFrom,
+        dateTo,
+        city
+      );
     res.status(200).json(weather);
   };
 
-  getWeatherPredictionForCity = async (req: Request, res: Response) => {
-    const date = new Date(req.params.date);
-    const city = req.params.city;
+  getHistoricalWeatherForLocationInDateRange = async (
+    req: ParsedRequest<getWeatherForLocationInDateRangeRequest>,
+    res: Response
+  ) => {
+    const dateFrom = req.query.dateFrom;
+    const dateTo = req.query.dateTo;
+    const lat = req.params.lat;
+    const lon = req.params.lon;
     const weather =
-      await this.weatherService.getAverageDailyWeatherForFutureDate(date, city);
+      await this.weatherService.getAverageHistoricalDailyWeatherInSpecificDateRangeForLocation(
+        dateFrom,
+        dateTo,
+        lat,
+        lon
+      );
     res.status(200).json(weather);
   };
 
   getWeatherPredictionForCityInDateRange = async (
-    req: Request,
+    req: ParsedRequest<getWeatherForCityInDateRangeRequest>,
     res: Response
   ) => {
-    const dateFrom = new Date(req.query.dateFrom as string);
-    const dateTo = new Date(req.query.dateTo as string);
+    const dateFrom = req.query.dateFrom;
+    const dateTo = req.query.dateTo;
     const city = req.params.city;
     const response =
-      await this.weatherService.getAverageDailyWeatherForSpecificDateRange(
+      await this.weatherService.getAverageDailyWeatherPredictionInSpecificDateRangeForCity(
         dateFrom,
         dateTo,
         city
@@ -71,15 +111,15 @@ export class WeatherController implements IWeatherController {
   };
 
   getWeatherPredictionForLocationInDateRange = async (
-    req: Request,
+    req: ParsedRequest<getWeatherForLocationInDateRangeRequest>,
     res: Response
   ) => {
-    const dateFrom = new Date(req.query.dateFrom as string);
-    const dateTo = new Date(req.query.dateTo as string);
-    const lat = +req.params.lat;
-    const lon = +req.params.lon;
+    const dateFrom = req.query.dateFrom;
+    const dateTo = req.query.dateTo;
+    const lat = req.params.lat;
+    const lon = req.params.lon;
     const response =
-      await this.weatherService.getAverageDailyWeatherForSpecificDateRangFromLatLon(
+      await this.weatherService.getAverageDailyWeatherPredictionInSpecificDateRangeForLocation(
         dateFrom,
         dateTo,
         lat,
@@ -88,7 +128,3 @@ export class WeatherController implements IWeatherController {
     res.status(200).json(response);
   };
 }
-
-// env.example
-// postman
-// polly-js
