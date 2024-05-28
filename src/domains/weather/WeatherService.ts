@@ -1,25 +1,30 @@
 import * as dotenv from "dotenv";
 dotenv.config();
-import axios, { AxiosError, AxiosResponse } from "axios";
-import { API_type, API_KEY } from "./WeatherTypes";
+import axios, { AxiosError } from "axios";
 import { DomainError } from "../errors/Errors";
 import { ResponseStatus } from "../errors/ErrorTypes";
-import { response } from "express";
+import { IWeatherHttpClient } from "../HttpClient/WeatherHttpClient";
 
 export interface IWeatherService {
   getCurrentWeatherForLocation(lat: number, lon: number): Promise<number>;
   getCurrentWeatherForCity(city: string): Promise<number>;
-  getAverageDailyWeatherForPastDate(date: Date, city: string): Promise<number>;
-  getAverageDailyWeatherForFutureDate(
-    date: Date,
-    city: string
-  ): Promise<number>;
-  getAverageDailyWeatherForSpecificDateRange(
+  getAverageHistoricalDailyWeatherInSpecificDateRangeForCity(
     dateFrom: Date,
     dateTo: Date,
     city: string
   ): Promise<[string, number][]>;
-  getAverageDailyWeatherForSpecificDateRangFromLatLon(
+  getAverageHistoricalDailyWeatherInSpecificDateRangeForLocation(
+    dateFrom: Date,
+    dateTo: Date,
+    lat: number,
+    lon: number
+  ): Promise<[string, number][]>;
+  getAverageDailyWeatherPredictionInSpecificDateRangeForCity(
+    dateFrom: Date,
+    dateTo: Date,
+    city: string
+  ): Promise<[string, number][]>;
+  getAverageDailyWeatherPredictionInSpecificDateRangeForLocation(
     dateFrom: Date,
     dateTo: Date,
     lat: number,
@@ -28,23 +33,13 @@ export interface IWeatherService {
 }
 
 export class WeatherService implements IWeatherService {
-  // async getCurrentWeatherForCity(city: string, country?: string) {
-  //   const cityWithCountry = city + ", " + country;
-  //   const apiRequest = this.createDataForApi(cityWithCountry);
-  //   try {
-  //     const response = await axios.get(CURRENT_WEATHER_CHECK_WEBSITE, {
-  //       params: apiRequest,
-  //     });
-  //     return response.data.current.temperature;
-  //   } catch (error) {
-  //     throw new AxiosError("Axios Error");
-  //   }
-  // }
+  constructor(private readonly weatherHttpClient: IWeatherHttpClient) {}
 
   async getCurrentWeatherForCity(city: string) {
+    const actualDate = new Date().toISOString();
     try {
-      const response = await axios.get(
-        `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${city}?unitGroup=metric&include=current&key=${process.env.API_KEY}&contentType=json`
+      const response = await this.weatherHttpClient.getCurrentData(
+        `/${city}/${actualDate}`
       );
       return response.data.currentConditions.temp;
     } catch (err) {
@@ -53,10 +48,11 @@ export class WeatherService implements IWeatherService {
   }
 
   async getCurrentWeatherForLocation(lat: number, lon: number) {
+    const actualDate = new Date().toISOString();
     try {
-      const response = await axios.get(
-        `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${lat}%2C%20
-          ${lon}?unitGroup=metric&include=current&key=${process.env.API_KEY}&contentType=json`
+      const response = await this.weatherHttpClient.getCurrentData(
+        `/${lat}%2C%20
+          ${lon}/${actualDate}`
       );
       return response.data.currentConditions.temp;
     } catch (err) {
@@ -64,32 +60,7 @@ export class WeatherService implements IWeatherService {
     }
   }
 
-  async getAverageDailyWeatherForPastDate(date: Date, city: string) {
-    this.isDateFromPast(date);
-    return this.getAverageDailyWeatherForPastOrFutureDate(date, city);
-  }
-
-  async getAverageDailyWeatherForFutureDate(date: Date, city: string) {
-    this.isDateFromFuture(date);
-    return this.getAverageDailyWeatherForPastOrFutureDate(date, city);
-  }
-
-  private async getAverageDailyWeatherForPastOrFutureDate(
-    date: Date,
-    city: string
-  ) {
-    const getDate = this.convertDate(date);
-    try {
-      const response = await axios.get(
-        `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${city}/${getDate}?unitGroup=metric&key=${process.env.API_KEY}&contentType=json`
-      );
-      return response.data.days[0].temp;
-    } catch (err) {
-      throw err;
-    }
-  }
-
-  async getAverageDailyWeatherForSpecificDateRange(
+  async getAverageDailyWeatherPredictionInSpecificDateRangeForCity(
     dateFrom: Date,
     dateTo: Date,
     city: string
@@ -100,19 +71,19 @@ export class WeatherService implements IWeatherService {
     const getDateFromAsString = this.convertDate(dateFrom);
     const getDateToAsString = this.convertDate(dateTo);
     try {
-      const response = await axios(
-        `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${city}/${getDateFromAsString}/${getDateToAsString}?unitGroup=metric&key=${process.env.API_KEY}&contentType=json`
+      const response = await this.weatherHttpClient.getPastOrFutureData(
+        `/${city}/${getDateFromAsString}/${getDateToAsString}`
       );
       const res: [string, number][] = response.data.days.map((element: any) => {
         return [element.datetime, element.temp];
       });
       return res;
     } catch (err) {
-      throw err;
+      throw new AxiosError("Axios Error");
     }
   }
 
-  async getAverageDailyWeatherForSpecificDateRangFromLatLon(
+  async getAverageDailyWeatherPredictionInSpecificDateRangeForLocation(
     dateFrom: Date,
     dateTo: Date,
     lat: number,
@@ -124,18 +95,94 @@ export class WeatherService implements IWeatherService {
     const getDateFromAsString = this.convertDate(dateFrom);
     const getDateToAsString = this.convertDate(dateTo);
     try {
-      const response = await axios(
-        `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${lat}%2C%20
-        ${lon}/${getDateFromAsString}/${getDateToAsString}?unitGroup=metric&key=${process.env.API_KEY}&contentType=json`
+      const response = await this.weatherHttpClient.getPastOrFutureData(
+        `/${lat}%2C%20${lon}/${getDateFromAsString}/${getDateToAsString}`
       );
       console.log(response.data);
       return response.data.days.map((element: any) => {
         return [element.datetime, element.temp];
       });
     } catch (err) {
-      throw err;
+      throw new AxiosError("Axios Error");
     }
   }
+
+  async getAverageHistoricalDailyWeatherInSpecificDateRangeForCity(
+    dateFrom: Date,
+    dateTo: Date,
+    city: string
+  ) {
+    this.isDate1EarlierThanDate2(dateFrom, dateTo);
+    this.isDateFromPast(dateFrom);
+    this.isDateFromPast(dateTo);
+    const getDateFromAsString = this.convertDate(dateFrom);
+    const getDateToAsString = this.convertDate(dateTo);
+    try {
+      const response = await this.weatherHttpClient.getPastOrFutureData(
+        `/${city}/${getDateFromAsString}/${getDateToAsString}`
+      );
+      const res: [string, number][] = response.data.days.map((element: any) => {
+        return [element.datetime, element.temp];
+      });
+      return res;
+    } catch (err) {
+      throw new AxiosError("Axios Error");
+    }
+  }
+  async getAverageHistoricalDailyWeatherInSpecificDateRangeForLocation(
+    dateFrom: Date,
+    dateTo: Date,
+    lat: number,
+    lon: number
+  ) {
+    this.isDate1EarlierThanDate2(dateFrom, dateTo);
+    this.isDateFromPast(dateFrom);
+    this.isDateFromPast(dateTo);
+    const getDateFromAsString = this.convertDate(dateFrom);
+    const getDateToAsString = this.convertDate(dateTo);
+    try {
+      const response = await this.weatherHttpClient.getPastOrFutureData(
+        `/${lat}%2C%20${lon}/${getDateFromAsString}/${getDateToAsString}`
+      );
+      console.log(response.data);
+      return response.data.days.map((element: any) => {
+        return [element.datetime, element.temp];
+      });
+    } catch (err) {
+      throw new AxiosError("Axios Error");
+    }
+  }
+
+  // private async getAverageDailyWeatherForLocationInPastOrFutureDate(
+  //   date: Date,
+  //   lat: number,
+  //   lon: number
+  // ) {
+  //   const getDate = this.convertDate(date);
+  //   try {
+  //     const response = await this.weatherHttpClient.getPastOrFutureData(
+  //       `/${lat}%2C%20${lon}/${getDate}`
+  //     );
+  //     return response.data.days[0].temp;
+  //   } catch (err) {
+  //     throw err;
+  //   }
+  // }
+
+  // private async getAverageDailyWeatherForCityInPastOrFutureDate(
+  //   date: Date,
+  //   city: string
+  // ) {
+  //   const getDate = this.convertDate(date);
+  //   try {
+  //     const response = await this.weatherHttpClient.getPastOrFutureData(
+  //       `/${city}/${getDate}`
+  //     );
+  //     return response.data.days[0].temp;
+  //   } catch (err) {
+  //     throw err;
+  //   }
+  // }
 
   private convertDate(date: Date): string {
     return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
@@ -182,19 +229,5 @@ export class WeatherService implements IWeatherService {
         ResponseStatus.BAD_REQUEST
       );
     }
-  }
-
-  private createDataForApi(
-    location: string,
-    hourly?: number,
-    interval?: number
-  ) {
-    const API_req: API_type = {
-      access_key: API_KEY,
-      query: location,
-      hourly: hourly,
-      interval: interval,
-    };
-    return API_req;
   }
 }
