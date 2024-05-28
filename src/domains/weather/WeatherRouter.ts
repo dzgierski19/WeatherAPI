@@ -35,7 +35,7 @@ weatherRouter.get(
 );
 
 weatherRouter.get(
-  "/weather/historical/location/:lat/:lon",
+  "/weather/historical/locations/:lat/:lon",
   validatorMiddleware(getWeatherForLocationInDateRangeSchema),
   weatherController.getHistoricalWeatherForLocationInDateRange
 );
@@ -49,7 +49,7 @@ weatherRouter.get(
 );
 
 weatherRouter.get(
-  "/weather/prediction/location/:lat/:lon",
+  "/weather/prediction/locations/:lat/:lon",
   validatorMiddleware(getWeatherForLocationInDateRangeSchema),
   weatherController.getWeatherPredictionForLocationInDateRange
 );
