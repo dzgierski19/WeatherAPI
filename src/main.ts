@@ -4,9 +4,7 @@ import express from "express";
 import { weatherRouter } from "./domains/weather/WeatherRouter";
 import { errorHandler } from "./domains/middlewares/ErrorHandler";
 
-const PORT = 9000;
-
-const app = express();
+export const app = express();
 
 app.get("/", (req, res) => {
   console.log("it's working");
@@ -14,9 +12,4 @@ app.get("/", (req, res) => {
 });
 
 app.use(weatherRouter);
-
 app.use(errorHandler);
-
-app.listen(PORT, () => {
-  console.log(`Example app listening at http://localhost:${PORT}`);
-});
