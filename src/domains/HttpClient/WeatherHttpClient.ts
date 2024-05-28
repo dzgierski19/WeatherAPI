@@ -4,12 +4,6 @@ import { AxiosError, AxiosResponse } from "axios";
 import { unitGroup } from "./HttpClientTypes";
 import { AxiosClient } from "../AxiosClient/AxiosClient";
 
-// axios instance z odpowiednimi danymi
-
-// WeatherHttpClient
-
-// zodowa schema jak chce zeby wygladal config
-
 export interface IWeatherHttpClient {
   getCurrentData(url: string): Promise<AxiosResponse>;
   getPastOrFutureData(url: string): Promise<AxiosResponse>;
