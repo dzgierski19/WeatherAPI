@@ -1,6 +1,6 @@
 import * as dotenv from "dotenv";
 dotenv.config();
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
 import { DomainError } from "../errors/Errors";
 import { ResponseStatus } from "../errors/ErrorTypes";
 import { IWeatherHttpClient } from "../HttpClient/WeatherHttpClient";
@@ -36,11 +36,8 @@ export class WeatherService implements IWeatherService {
   constructor(private readonly weatherHttpClient: IWeatherHttpClient) {}
 
   async getCurrentWeatherForCity(city: string) {
-    const actualDate = new Date().toISOString();
     try {
-      const response = await this.weatherHttpClient.getCurrentData(
-        `/${city}/${actualDate}`
-      );
+      const response = await this.weatherHttpClient.getCurrentData(`/${city}`);
       return response.data.currentConditions.temp;
     } catch (err) {
       throw new AxiosError("Axios Error");
@@ -51,8 +48,7 @@ export class WeatherService implements IWeatherService {
     const actualDate = new Date().toISOString();
     try {
       const response = await this.weatherHttpClient.getCurrentData(
-        `/${lat}%2C%20
-          ${lon}/${actualDate}`
+        `/${lat}%2C%20${lon}`
       );
       return response.data.currentConditions.temp;
     } catch (err) {
