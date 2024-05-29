@@ -67,7 +67,7 @@ describe("WeatherService test suite", () => {
       expect(response.body).toBe(20);
       expect(response.statusCode).toBe(200);
     });
-    test("testing historical weather in date range for city endpoint", async () => {
+    test("testing historical weather in date range in given city endpoint", async () => {
       const city = "Warsaw";
       const dateFrom = "2023-11-10";
       const dateTo = "2023-11-23";
@@ -82,11 +82,11 @@ describe("WeatherService test suite", () => {
         .query({ dateFrom: dateFrom, dateTo: dateTo });
 
       console.log(response.body);
-      // expect(scope.isDone()).toBe(true);
+      expect(scope.isDone()).toBe(true);
       expect(response.body).toEqual([["2023-11-22", 10]]);
       expect(response.statusCode).toBe(200);
     });
-    test("testing predicted weather in date range in given location endpoint", async () => {
+    test("testing historical weather in date range in given location endpoint", async () => {
       const lat = 51.247;
       const lon = 22.566;
       const space = "%2C%20";
@@ -100,6 +100,48 @@ describe("WeatherService test suite", () => {
         });
       const response = await request(server)
         .get(`/weather/historical/locations/${lat}/${lon}`)
+        .query({ dateFrom: dateFrom, dateTo: dateTo });
+
+      console.log(response.body);
+      expect(scope.isDone()).toBe(true);
+      expect(response.body).toEqual([["2024-02-20", 100]]);
+      expect(response.statusCode).toBe(200);
+    });
+
+    test("testing predicted weather in date range in given city endpoint", async () => {
+      const city = "Cracow";
+      const dateFrom = "2024-11-10";
+      const dateTo = "2024-11-23";
+      const scope = nock(process.env.EXTERNAL_API)
+        .get(`/${city}/${dateFrom}/${dateTo}`)
+        .query(queryForPastOrFutureReq)
+        .reply(200, {
+          days: [{ datetime: "2024-02-20", temp: 100 }],
+        });
+      const response = await request(server)
+        .get(`/weather/prediction/cities/${city}`)
+        .query({ dateFrom: dateFrom, dateTo: dateTo });
+
+      console.log(response.body);
+      expect(scope.isDone()).toBe(true);
+      expect(response.body).toEqual([["2024-02-20", 100]]);
+      expect(response.statusCode).toBe(200);
+    });
+
+    test("testing predicted weather in date range in given location endpoint", async () => {
+      const lat = 22.247;
+      const lon = 31.566;
+      const space = "%2C%20";
+      const dateFrom = "2024-11-10";
+      const dateTo = "2024-11-23";
+      const scope = nock(process.env.EXTERNAL_API)
+        .get(`/${lat + space + lon}/${dateFrom}/${dateTo}`)
+        .query(queryForPastOrFutureReq)
+        .reply(200, {
+          days: [{ datetime: "2024-02-20", temp: 100 }],
+        });
+      const response = await request(server)
+        .get(`/weather/prediction/locations/${lat}/${lon}`)
         .query({ dateFrom: dateFrom, dateTo: dateTo });
 
       console.log(response.body);
