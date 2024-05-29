@@ -1,7 +1,6 @@
 import {
   dateCheck,
   getCurrentWeatherForCitySchema,
-  getCurrentWeatherForLocationSchema,
   refinedNumber,
   toDate,
   toNumber,
