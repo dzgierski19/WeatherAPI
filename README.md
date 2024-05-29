@@ -1,22 +1,47 @@
-#Weather API
+# Weather API
 Create an app which allows user to get a weather data from https://www.visualcrossing.com/
 
-#Objectives:
-[ ] Create an app, address: http://127.0.0.1:<server-port>/weather
-[ ] Create an endpoint: /get/cities/:city should allow to get a weather for current date for a specific city
-[ ] Create an endpoint: /get/locations/:lat/:lon should allow to get a weather for current date for a specific location
-[ ] Create an endpoint: /prediction/:day/:city should allow to get weather data for a specific date
-[ ] Create an endpoint: /prediction/cities/:city should allow to get a weather data for a specific city and specific data range. 
+## Objectives
 
-Accept as query params:
+* Create an endpoint: /weather/cities/:city 
+should allow to get a weather for current date for a specific city
 
-from - start date
-to - end date
-[ ] Create an endpoint: /prediction/:lat/:lon should allow to get a weather data for a specific location and specific data range. 
+* Create an endpoint: /weather/locations/:lat/:lon
+should allow to get a weather for current date for a specific location
 
-Accept as query params:
+* Create an endpoint: /weather/historical/cities/:city 
+should allow to get weather historical data for a specific date range in past for city and accept dateFrom (start date) and dateTo (end Date) as query parameteres. Dates from future and current date are not accepted.
 
-from - start date
-to - end date
-[ ] App under the: /prediction* endpoints should not work for current or past date
-[ ] App should accept: X-Weather-API-KEY in headers with user api key for https://www.visualcrossing.com/
+* Create an endpoint: /weather/historical/locations/:lat/:lon
+should allow to get weather historical data for a specific date range in past for city and accept dateFrom (start date) and dateTo (end Date) as query parameteres. Dates from future and current date are not accepted.
+
+* Create an endpoint: /weather/prediction/cities/:city 
+should allow to get a weather prediction in specific date range in future for a city and accept dateFrom (start date) and dateTo (end Date) as query parameteres. Dates from past and current date are not accepted.
+
+* Create an endpoint: /weather/prediction/locations/:lat/:lon
+should allow to get weather prediction in specific date range in future for city and accept dateFrom (start date) and dateTo (end Date) as query parameteres. Dates from past and current date are not accepted.
+
+## Technologies
+Project is created with:
+* Node.js
+* Express.js
+* TypeScript
+* Zod
+	
+## Setup
+To run this project, install it locally using npm:
+
+```
+# Clone the project
+$ git clone https://github.com/dzgierski19/WeatherAPI.git
+
+# Go to the project directory
+$ cd Weather-API
+
+# Install dependencies
+$ npm install
+
+# Start the server
+$ npm run start
+
+```
