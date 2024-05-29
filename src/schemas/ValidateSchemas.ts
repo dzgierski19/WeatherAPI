@@ -1,7 +1,6 @@
 import z from "zod";
-import { UNITGROUP } from "../domains/HttpClient/HttpClientTypes";
 
-const dateCheck = z.string().refine((element) => {
+export const dateCheck = z.string().refine((element) => {
   if (/^\d{4}-\d{2}-\d{2}$/.test(element)) return element;
 }, "date must be in format YYYY-MM-DD");
 
