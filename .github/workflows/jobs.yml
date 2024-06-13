@@ -9,7 +9,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      EXTERNAL_API: https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/
+      EXTERNAL_API: badapi
       API_KEY: fakeKey
 
     steps:
@@ -30,8 +30,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Echo DATABASE_URL
-        run: echo $DATABASE_URL
+      - name: Echo EXTERNAL_API
+        run: echo $EXTERNAL_API
 
       - name: Run unit tests
         run: npm run test
