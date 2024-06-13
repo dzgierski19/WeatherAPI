@@ -1,12 +1,12 @@
 import { Router } from "express";
 import { weatherController } from "./../../IoC";
-import { validatorMiddleware } from "../middlewares/ValidationMiddleware";
+import { validatorMiddleware } from "../../app/middlewares/ValidationMiddleware";
 import {
   getCurrentWeatherForCitySchema,
   getCurrentWeatherForLocationSchema,
   getWeatherForCityInDateRangeSchema,
   getWeatherForLocationInDateRangeSchema,
-} from "../../schemas/ValidateSchemas";
+} from "./schemas/ValidateSchemas";
 
 require("express-async-errors");
 
