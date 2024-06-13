@@ -4,7 +4,7 @@ import {
   refinedNumber,
   toDate,
   toNumber,
-} from "../schemas/ValidateSchemas";
+} from "../domains/weather/schemas/ValidateSchemas";
 
 describe("Schemas testing", () => {
   describe("testing type changing using zod coerce method", () => {
