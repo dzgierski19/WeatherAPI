@@ -9,7 +9,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      EXTERNAL_API: badapi
+      EXTERNAL_API: https://fakepage.com
       API_KEY: fakeKey
 
     steps:
