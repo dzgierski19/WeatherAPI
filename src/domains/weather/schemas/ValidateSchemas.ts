@@ -1,4 +1,8 @@
 import z from "zod";
+import {
+  CONTENT_TYPE,
+  UNITGROUP,
+} from "../adapters/HttpClient/HttpClientTypes";
 
 export const dateCheck = z.string().refine((element) => {
   if (/^\d{4}-\d{2}-\d{2}$/.test(element)) return element;
@@ -17,10 +21,18 @@ export const refinedNumber = toNumber
     "Please type lat/lon with max 9 characters"
   );
 
+export const optionalParameters = z
+  .object({
+    contentType: z.nativeEnum(CONTENT_TYPE).optional(),
+    unitGroup: z.nativeEnum(UNITGROUP).optional(),
+  })
+  .optional();
+
 // CURRENT WEATHER
 
 export const getCurrentWeatherForCitySchema = z.object({
   params: z.object({ city: z.string().min(2) }),
+  query: optionalParameters,
 });
 
 export type getCurrentWeatherForCityRequest = z.infer<
@@ -32,39 +44,22 @@ export const getCurrentWeatherForLocationSchema = z.object({
     lat: refinedNumber,
     lon: refinedNumber,
   }),
+  query: optionalParameters,
 });
 
 export type getCurrentWeatherForLocationRequest = z.infer<
   typeof getCurrentWeatherForLocationSchema
 >;
 
-// // HISTORICAL WEATHER && FUTURE WEATHER
-
-// export const getWeatherForCityOnDateRequestSchema = z.object({
-//   params: z.object({ city: z.string().min(2) }),
-//   query: z.object({ date: toDate }),
-// });
-
-// export type getWeatherForCityOnDateRequest = z.infer<
-//   typeof getWeatherForCityOnDateRequestSchema
-// >;
-
-// export const getWeatherForLocationOnDateRequestSchema = z.object({
-//   params: z.object({
-//     lat: toNumber,
-//     lon: toNumber,
-//   }),
-//   query: z.object({ date: toDate }),
-// });
-
-// export type getWeatherForLocationOnDateRequest = z.infer<
-//   typeof getWeatherForLocationOnDateRequestSchema
-// >;
-
 // WEATHER IN DATE RANGE
 
 export const getWeatherForCityInDateRangeSchema = z.object({
-  query: z.object({ dateFrom: toDate, dateTo: toDate }),
+  query: z.object({
+    dateFrom: toDate,
+    dateTo: toDate,
+    contentType: z.nativeEnum(CONTENT_TYPE).default("json"),
+    unitGroup: z.nativeEnum(UNITGROUP).default("metric"),
+  }),
   params: z.object({ city: z.string().min(2) }),
 });
 
@@ -73,7 +68,11 @@ export type getWeatherForCityInDateRangeRequest = z.infer<
 >;
 
 export const getWeatherForLocationInDateRangeSchema = z.object({
-  query: z.object({ dateFrom: toDate, dateTo: toDate }),
+  query: z.object({
+    dateFrom: toDate,
+    dateTo: toDate,
+    optionalParameters,
+  }),
   params: z.object({ lat: toNumber, lon: toNumber }),
 });
 
