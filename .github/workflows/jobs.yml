@@ -9,8 +9,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      EXTERNAL_API:
-      API_KEY:
+      EXTERNAL_API: https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/
+      API_KEY: fakeKey
 
     steps:
       - name: Checkout code
