@@ -21,21 +21,16 @@ export const refinedNumber = toNumber
     "Please type lat/lon with max 9 characters"
   );
 
-export const optionalParameters = z
-  .object({
-    contentType: z
-      .nativeEnum(CONTENT_TYPE)
-      .default(CONTENT_TYPE.JSON)
-      .optional(),
-    unitGroup: z.nativeEnum(UNITGROUP).default(UNITGROUP.METRIC).optional(),
-  })
-  .optional();
+export const optionalParameters = z.object({
+  contentType: z.nativeEnum(CONTENT_TYPE).default(CONTENT_TYPE.JSON).optional(),
+  unitGroup: z.nativeEnum(UNITGROUP).default(UNITGROUP.METRIC).optional(),
+});
 
 // CURRENT WEATHER
 
 export const getCurrentWeatherForCitySchema = z.object({
   params: z.object({ city: z.string().min(2) }),
-  query: optionalParameters,
+  query: optionalParameters.optional(),
 });
 
 export type getCurrentWeatherForCityRequest = z.infer<
@@ -47,7 +42,7 @@ export const getCurrentWeatherForLocationSchema = z.object({
     lat: refinedNumber,
     lon: refinedNumber,
   }),
-  query: optionalParameters,
+  query: optionalParameters.optional(),
 });
 
 export type getCurrentWeatherForLocationRequest = z.infer<
