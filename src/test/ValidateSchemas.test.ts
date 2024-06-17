@@ -1,6 +1,7 @@
 import {
   dateCheck,
   getCurrentWeatherForCitySchema,
+  optionalParameters,
   refinedNumber,
   toDate,
   toNumber,
@@ -42,6 +43,33 @@ describe("Schemas testing", () => {
       });
       it("should not parse string in invalid format ", () => {
         expect(dateCheck.safeParse("2024-3-20").success).toBeFalsy();
+      });
+    });
+
+    describe("testing optionalParameters schema", () => {
+      it("should parse with correct parameters", () => {
+        expect(optionalParameters.safeParse({}).success).toBeTruthy();
+        expect(
+          optionalParameters.safeParse({ contentType: "json" }).success
+        ).toBeTruthy();
+        expect(
+          optionalParameters.safeParse({ unitGroup: "metric" }).success
+        ).toBeTruthy();
+        expect(
+          optionalParameters.safeParse({ unitGroup: "us", contentType: "csv" })
+            .success
+        ).toBeTruthy();
+      });
+      it("should not parse with incorrect parameters", () => {
+        expect(
+          optionalParameters.safeParse({ unitGroup: "BAD_DATA" }).success
+        ).toBeFalsy();
+        expect(
+          optionalParameters.safeParse({
+            unitGroup: "metric",
+            contentType: "BAD_CONTENT_TYPE",
+          }).success
+        ).toBeFalsy();
       });
     });
     describe("testing getCurrentWeatherForCity schema", () => {
