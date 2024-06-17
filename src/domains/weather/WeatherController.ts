@@ -43,11 +43,16 @@ export class WeatherController implements IWeatherController {
     res: Response
   ) => {
     const city = req.params.city;
-    const query = req.query;
-    const weather = await this.weatherService.getCurrentWeatherForCity(
-      city,
-      query
-    );
+    if (req.query) {
+      const { contentType, unitGroup } = req.query;
+      const weather = await this.weatherService.getCurrentWeatherForCity(city, {
+        contentType,
+        unitGroup,
+      });
+      res.status(200).json(weather);
+      return;
+    }
+    const weather = await this.weatherService.getCurrentWeatherForCity(city);
     res.status(200).json(weather);
   };
 
@@ -55,13 +60,20 @@ export class WeatherController implements IWeatherController {
     req: ParsedRequest<getCurrentWeatherForLocationRequest>,
     res: Response
   ) => {
-    const lat = req.params.lat;
-    const lon = req.params.lon;
-    const query = req.query;
+    const { lat, lon } = req.params;
+    if (req.query) {
+      const { contentType, unitGroup } = req.query;
+      const weather = await this.weatherService.getCurrentWeatherForLocation(
+        lat,
+        lon,
+        { contentType, unitGroup }
+      );
+      res.status(200).json(weather);
+      return;
+    }
     const weather = await this.weatherService.getCurrentWeatherForLocation(
       lat,
-      lon,
-      query
+      lon
     );
     res.status(200).json(weather);
   };
@@ -86,16 +98,15 @@ export class WeatherController implements IWeatherController {
     req: ParsedRequest<getWeatherForLocationInDateRangeRequest>,
     res: Response
   ) => {
-    const dateFrom = req.query.dateFrom;
-    const dateTo = req.query.dateTo;
-    const lat = req.params.lat;
-    const lon = req.params.lon;
+    const { dateTo, dateFrom, contentType, unitGroup } = req.query;
+    const { lat, lon } = req.params;
     const weather =
       await this.weatherService.getAverageHistoricalDailyWeatherInSpecificDateRangeForLocation(
         dateFrom,
         dateTo,
         lat,
-        lon
+        lon,
+        { contentType, unitGroup }
       );
     res.status(200).json(weather);
   };
@@ -119,14 +130,15 @@ export class WeatherController implements IWeatherController {
     req: ParsedRequest<getWeatherForLocationInDateRangeRequest>,
     res: Response
   ) => {
-    const { dateFrom, dateTo } = req.query;
+    const { dateFrom, dateTo, contentType, unitGroup } = req.query;
     const { lat, lon } = req.params;
     const response =
       await this.weatherService.getAverageDailyWeatherPredictionInSpecificDateRangeForLocation(
         dateFrom,
         dateTo,
         lat,
-        lon
+        lon,
+        { contentType, unitGroup }
       );
     res.status(200).json(response);
   };
