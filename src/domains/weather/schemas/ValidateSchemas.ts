@@ -23,8 +23,11 @@ export const refinedNumber = toNumber
 
 export const optionalParameters = z
   .object({
-    contentType: z.nativeEnum(CONTENT_TYPE).optional(),
-    unitGroup: z.nativeEnum(UNITGROUP).optional(),
+    contentType: z
+      .nativeEnum(CONTENT_TYPE)
+      .default(CONTENT_TYPE.JSON)
+      .optional(),
+    unitGroup: z.nativeEnum(UNITGROUP).default(UNITGROUP.METRIC).optional(),
   })
   .optional();
 
@@ -57,8 +60,11 @@ export const getWeatherForCityInDateRangeSchema = z.object({
   query: z.object({
     dateFrom: toDate,
     dateTo: toDate,
-    contentType: z.nativeEnum(CONTENT_TYPE).default("json"),
-    unitGroup: z.nativeEnum(UNITGROUP).default("metric"),
+    contentType: z
+      .nativeEnum(CONTENT_TYPE)
+      .default(CONTENT_TYPE.JSON)
+      .optional(),
+    unitGroup: z.nativeEnum(UNITGROUP).default(UNITGROUP.METRIC).optional(),
   }),
   params: z.object({ city: z.string().min(2) }),
 });
@@ -71,7 +77,11 @@ export const getWeatherForLocationInDateRangeSchema = z.object({
   query: z.object({
     dateFrom: toDate,
     dateTo: toDate,
-    optionalParameters,
+    contentType: z
+      .nativeEnum(CONTENT_TYPE)
+      .default(CONTENT_TYPE.JSON)
+      .optional(),
+    unitGroup: z.nativeEnum(UNITGROUP).default(UNITGROUP.METRIC).optional(),
   }),
   params: z.object({ lat: toNumber, lon: toNumber }),
 });
