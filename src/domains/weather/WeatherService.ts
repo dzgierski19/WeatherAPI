@@ -1,6 +1,5 @@
 import * as dotenv from "dotenv";
 dotenv.config();
-import { AxiosError } from "axios";
 import { DomainError } from "../errors/Errors";
 import { ErrorStatus } from "../errors/ErrorStatus";
 import { IWeatherHttpAdapter } from "./adapters/HttpClient/WeatherHttpAdapter";
