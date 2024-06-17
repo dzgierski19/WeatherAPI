@@ -2,22 +2,22 @@ import * as dotenv from "dotenv";
 dotenv.config();
 import axios, { AxiosInstance } from "axios";
 import { weatherApiConfig } from "./ConfigSchema";
+import { configDataType } from "./ConfigTypes";
 
 export class WeatherApiClient {
   api: AxiosInstance;
 
-  constructor() {
+  constructor(private readonly config: configDataType) {
     this.api = this.createAxiosInstance();
   }
 
   private createAxiosInstance(): AxiosInstance {
+    weatherApiConfig(this.config);
     return axios.create({
-      baseURL: weatherApiConfig.baseUrl,
+      baseURL: this.config.baseUrl,
       params: {
-        key: weatherApiConfig.apiKey,
+        key: this.config.apiKey,
       },
     });
   }
 }
-
-//config w constructorze
