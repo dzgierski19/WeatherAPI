@@ -29,7 +29,7 @@ export const errorHandler = (
   }
   res.status(ErrorStatus.INTERNAL_ERROR).json({
     status: ErrorStatus.INTERNAL_ERROR,
-    message: "Something went wrong!",
-    error: error,
+    message: error.message,
+    error: error.stack,
   });
 };
