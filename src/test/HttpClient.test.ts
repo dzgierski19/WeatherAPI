@@ -82,7 +82,7 @@ describe("WeatherService test suite", () => {
         .query({ dateFrom: dateFrom, dateTo: dateTo });
 
       console.log(response.body);
-      // expect(scope.isDone()).toBe(true);
+      expect(scope.isDone()).toBe(true);
       expect(response.body).toEqual([["2023-11-22", 10]]);
       expect(response.statusCode).toBe(200);
     });
@@ -103,7 +103,7 @@ describe("WeatherService test suite", () => {
         .query({ dateFrom: dateFrom, dateTo: dateTo });
 
       console.log(response.body);
-      // expect(scope.isDone()).toBe(true);
+      expect(scope.isDone()).toBe(true);
       expect(response.body).toEqual([["2024-02-20", 100]]);
       expect(response.statusCode).toBe(200);
     });
@@ -123,7 +123,7 @@ describe("WeatherService test suite", () => {
         .query({ dateFrom: dateFrom, dateTo: dateTo });
 
       console.log(response.body);
-      // expect(scope.isDone()).toBe(true);
+      expect(scope.isDone()).toBe(true);
       expect(response.body).toEqual([["2024-02-20", 100]]);
       expect(response.statusCode).toBe(200);
     });
@@ -145,7 +145,7 @@ describe("WeatherService test suite", () => {
         .query({ dateFrom: dateFrom, dateTo: dateTo });
 
       console.log(response.body);
-      // expect(scope.isDone()).toBe(true);
+      expect(scope.isDone()).toBe(true);
       expect(response.body).toEqual([["2024-02-20", 100]]);
       expect(response.statusCode).toBe(200);
     });
