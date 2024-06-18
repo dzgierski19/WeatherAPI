@@ -22,15 +22,20 @@ export const refinedNumber = toNumber
   );
 
 export const optionalParameters = z.object({
-  contentType: z.nativeEnum(CONTENT_TYPE).default(CONTENT_TYPE.JSON).optional(),
-  unitGroup: z.nativeEnum(UNITGROUP).default(UNITGROUP.METRIC).optional(),
+  contentType: z.nativeEnum(CONTENT_TYPE).optional(), //.default(CONTENT_TYPE.JSON).optional(),
+  unitGroup: z.nativeEnum(UNITGROUP).optional(), //.default(UNITGROUP.METRIC).optional(),
+});
+
+export const defaultOptionalParameters = optionalParameters.default({
+  contentType: CONTENT_TYPE.JSON,
+  unitGroup: UNITGROUP.METRIC,
 });
 
 // CURRENT WEATHER
 
 export const getCurrentWeatherForCitySchema = z.object({
   params: z.object({ city: z.string().min(2) }),
-  query: optionalParameters.optional(),
+  query: defaultOptionalParameters,
 });
 
 export type getCurrentWeatherForCityRequest = z.infer<
@@ -42,7 +47,7 @@ export const getCurrentWeatherForLocationSchema = z.object({
     lat: refinedNumber,
     lon: refinedNumber,
   }),
-  query: optionalParameters.optional(),
+  query: defaultOptionalParameters,
 });
 
 export type getCurrentWeatherForLocationRequest = z.infer<
@@ -55,11 +60,8 @@ export const getWeatherForCityInDateRangeSchema = z.object({
   query: z.object({
     dateFrom: toDate,
     dateTo: toDate,
-    contentType: z
-      .nativeEnum(CONTENT_TYPE)
-      .default(CONTENT_TYPE.JSON)
-      .optional(),
-    unitGroup: z.nativeEnum(UNITGROUP).default(UNITGROUP.METRIC).optional(),
+    contentType: z.nativeEnum(CONTENT_TYPE).default(CONTENT_TYPE.JSON),
+    unitGroup: z.nativeEnum(UNITGROUP).default(UNITGROUP.METRIC),
   }),
   params: z.object({ city: z.string().min(2) }),
 });
@@ -72,11 +74,8 @@ export const getWeatherForLocationInDateRangeSchema = z.object({
   query: z.object({
     dateFrom: toDate,
     dateTo: toDate,
-    contentType: z
-      .nativeEnum(CONTENT_TYPE)
-      .default(CONTENT_TYPE.JSON)
-      .optional(),
-    unitGroup: z.nativeEnum(UNITGROUP).default(UNITGROUP.METRIC).optional(),
+    contentType: z.nativeEnum(CONTENT_TYPE).default(CONTENT_TYPE.JSON),
+    unitGroup: z.nativeEnum(UNITGROUP).default(UNITGROUP.METRIC),
   }),
   params: z.object({ lat: toNumber, lon: toNumber }),
 });
