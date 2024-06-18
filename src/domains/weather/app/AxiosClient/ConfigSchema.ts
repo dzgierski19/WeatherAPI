@@ -1,15 +1,19 @@
-import z, { ZodSchema } from "zod";
-import { configDataType } from "./ConfigTypes";
+import z from "zod";
+import { Validator } from "../Validator";
 
-export class Validator {
-  static run<T>(schema: ZodSchema<T>, data: Record<string, unknown>): T {
-    return schema.parse(data);
-  }
-}
+export type configDataType = { baseUrl?: string; apiKey?: string };
 
-export const weatherApiConfig = (config: configDataType) => {
-  Validator.run(z.object({ baseUrl: z.string().url(), apiKey: z.string() }), {
-    baseUrl: config.baseUrl,
-    apiKey: config.apiKey,
-  });
+export const getWeatherApiConfig = (config: configDataType) => {
+  return Validator.run(
+    z.object({ baseUrl: z.string().url(), apiKey: z.string() }),
+    {
+      baseUrl: config.baseUrl,
+      apiKey: config.apiKey,
+    }
+  );
 };
+
+export const weatherApiConfig = getWeatherApiConfig({
+  apiKey: process.env.API_KEY,
+  baseUrl: process.env.EXTERNAL_API,
+});
